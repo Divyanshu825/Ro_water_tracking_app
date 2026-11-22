@@ -155,7 +155,7 @@ export const AppearanceScreen = () => {
         <AppText v="h3">Data</AppText>
         <AppText v="caption" color="textMuted">Everything is stored on this device. Restore the sample business to explore, or start fresh with an empty business.</AppText>
         <Button title="Restore sample data" variant="outline" onPress={() => fb.confirm('Restore sample data?', 'This replaces all current data with the demo business.', () => { dispatch(dbActions.resetDemo()); fb.success('Sample data restored'); }, 'Restore', true)} />
-        <Button title="Start with empty data" variant="danger" onPress={() => fb.confirm('Erase all data?', 'All customers, orders, stock and payments will be deleted. This cannot be undone.', () => { dispatch(dbActions.clearAll()); fb.success('Data cleared'); }, 'Erase', true)} />
+        <Button title="Start with empty data" variant="danger" onPress={() => fb.confirm('Erase all data?', 'All customers, orders, stock, payments and custom products will be deleted. Your standard bottle sizes and products are set up again. This cannot be undone.', () => { dispatch(dbActions.clearAll()); fb.success('Data cleared'); }, 'Erase', true)} />
       </Card>
     </Screen>
   );

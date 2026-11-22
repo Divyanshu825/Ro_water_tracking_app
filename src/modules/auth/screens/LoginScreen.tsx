@@ -11,6 +11,7 @@ import { WaterLoader } from '../../../components/common/WaterLoader';
 import { useFeedback } from '../../../components/common/Feedback';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { authActions } from '../../../store/authSlice';
+import { activateWorkspace } from '../../../store/workspace';
 import { login } from '../../../services/authService';
 import { useNav } from '../../../navigation/hooks';
 import { useTheme } from '../../../theme';
@@ -34,6 +35,7 @@ export default function LoginScreen() {
     setBusy(true);
     try {
       const user = await login(accounts, v.email, v.password);
+      dispatch(activateWorkspace(user.id)); // load this business's own data
       dispatch(authActions.setUser(user));
       nav.reset({ index: 0, routes: [{ name: 'Main' }] });
     } catch (e) {

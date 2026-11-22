@@ -2,13 +2,15 @@ import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 
 export interface AuthUser { id: string; name: string; email: string; business: string }
 export interface MockAccount extends AuthUser { password: string }
+export const DEMO_ACCOUNT_ID = 'u_demo';
+
 interface AuthState { user: AuthUser | null; seenWelcome: boolean; accounts: MockAccount[] }
 
 const initialState: AuthState = {
   user: null,
   seenWelcome: false,
   // Demo account. A real backend replaces authService, not this slice.
-  accounts: [{ id: 'u_demo', name: 'Aarav Mehta', email: 'owner@aquapure.in', business: 'AquaPure Water Supply', password: 'demo1234' }],
+  accounts: [{ id: DEMO_ACCOUNT_ID, name: 'Aarav Mehta', email: 'owner@aquapure.in', business: 'AquaPure Water Supply', password: 'demo1234' }],
 };
 
 const slice = createSlice({

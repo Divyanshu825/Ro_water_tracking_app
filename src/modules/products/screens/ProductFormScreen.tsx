@@ -19,8 +19,8 @@ import { numStr } from '../../../utils/zodHelpers';
 import { formatCapacity, toNum } from '../../../utils/format';
 import { pickImage } from '../../../utils/files';
 import { useTheme } from '../../../theme';
+import { capacityLabel, sortedCapacities } from '../services/capacityService';
 
-const PRESETS = [250, 500, 1000, 2000, 5000, 10000, 20000, 25000];
 const schema = z.object({
   name: z.string().trim().min(2, 'Enter a product name'),
   capacityMl: numStr('Capacity', 1, { integer: true }),
@@ -48,8 +48,9 @@ export default function ProductFormScreen() {
     defaultValues: { name: p?.name ?? '', capacityMl: String(p?.capacityMl ?? 20000), sellingPrice: String(p?.sellingPrice ?? ''), purchaseCost: String(p?.purchaseCost ?? ''), deposit: String(p?.deposit ?? 0), lowStockThreshold: String(p?.lowStockThreshold ?? 20) },
   });
   const w = useWatch({ control });
-  // Standard sizes plus any custom sizes already saved, so they can be reused.
-  const sizeOptions = Array.from(new Set([...PRESETS, ...db.products.map((x) => x.capacityMl)])).sort((a, b) => a - b);
+  // This business's saved sizes (standard + custom). The product's current size is kept even if its record was removed.
+  const saved = sortedCapacities(db).map((x) => ({ ml: x.ml, label: capacityLabel(x) }));
+  const sizeOptions = p && !saved.some((x) => x.ml === p.capacityMl) ? [...saved, { ml: p.capacityMl, label: formatCapacity(p.capacityMl) }].sort((a, b) => a.ml - b.ml) : saved;
   const margin = toNum(w.sellingPrice) - toNum(w.purchaseCost);
 
   const submit = handleSubmit((v) => {
@@ -71,18 +72,21 @@ export default function ProductFormScreen() {
       <Card style={{ gap: 14 }}>
         <FormText control={control} name="name" label="Product name" required placeholder="e.g. 20L Jar" autoCapitalize="words" />
         <View style={{ gap: 8 }}>
-          <FieldLabel label="Bottle capacity" required />
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <FieldLabel label="Bottle capacity" required />
+            <AppText v="label" color="secondary" accessibilityRole="button" onPress={() => nav.navigate('Capacities')}>Manage sizes</AppText>
+          </View>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-            {sizeOptions.map((ml) => {
+            {sizeOptions.map(({ ml, label }) => {
               const on = toNum(w.capacityMl) === ml;
               return (
                 <Pressable key={ml} onPress={() => setValue('capacityMl', String(ml), { shouldValidate: true })} accessibilityRole="button" style={{ paddingHorizontal: 14, height: 36, borderRadius: 18, justifyContent: 'center', backgroundColor: on ? c.primary : c.surfaceAlt, borderWidth: 1, borderColor: on ? c.primary : c.border }}>
-                  <AppText v="label" color={on ? 'onPrimary' : 'textMuted'}>{formatCapacity(ml)}</AppText>
+                  <AppText v="label" color={on ? 'onPrimary' : 'textMuted'}>{label}</AppText>
                 </Pressable>
               );
             })}
           </View>
-          <FormText control={control} name="capacityMl" suffix="ml" placeholder="Custom size in ml" keyboardType="number-pad" hint="Pick a preset or enter any custom size." />
+          <FormText control={control} name="capacityMl" suffix="ml" placeholder="Custom size in ml" keyboardType="number-pad" hint="Pick a size or enter a custom one. New sizes are saved to your list." />
         </View>
       </Card>
       <Card style={{ gap: 14 }}>

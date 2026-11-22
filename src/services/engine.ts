@@ -1,6 +1,7 @@
 import { Ctx, DbState, ID, Result } from '../types/domain';
 import { CustomerInput, deleteCustomer, saveCustomer, setCustomerActive } from '../modules/customers/services/customerService';
 import { ProductInput, saveProduct, setProductActive } from '../modules/products/services/productService';
+import { CapacityInput, deleteCapacity, saveCapacity } from '../modules/products/services/capacityService';
 import { StaffInput, saveStaff, setStaffActive } from '../modules/delivery/services/staffService';
 import { OrderInput, StatusInput, DeliverInput, changeStatus, createOrder, deliverOrder } from '../modules/orders/services/orderService';
 import { DepositRefundInput, PaymentInput, recordPayment, refundDeposit } from '../modules/payments/services/paymentService';
@@ -19,6 +20,8 @@ export type Op =
   | { t: 'customer.delete'; id: ID }
   | { t: 'product.save'; v: ProductInput }
   | { t: 'product.active'; id: ID; active: boolean }
+  | { t: 'capacity.save'; v: CapacityInput }
+  | { t: 'capacity.delete'; id: ID }
   | { t: 'staff.save'; v: StaffInput }
   | { t: 'staff.active'; id: ID; active: boolean }
   | { t: 'order.create'; v: OrderInput }
@@ -46,6 +49,8 @@ export function applyOp(db: DbState, op: Op, ctx: Ctx): Result<Record<string, un
     case 'customer.delete': return deleteCustomer(db, op.id);
     case 'product.save': return saveProduct(db, ctx, op.v);
     case 'product.active': return setProductActive(db, op.id, op.active);
+    case 'capacity.save': return saveCapacity(db, ctx, op.v);
+    case 'capacity.delete': return deleteCapacity(db, op.id);
     case 'staff.save': return saveStaff(db, ctx, op.v);
     case 'staff.active': return setStaffActive(db, op.id, op.active);
     case 'order.create': return createOrder(db, ctx, op.v);

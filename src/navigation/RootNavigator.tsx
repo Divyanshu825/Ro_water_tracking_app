@@ -32,6 +32,7 @@ export default function RootNavigator() {
         <Stack.Screen name="CustomerDetail" getComponent={lazy(() => require('../modules/customers/screens/CustomerDetailScreen'))} />
         <Stack.Screen name="ProductList" getComponent={lazy(() => require('../modules/products/screens/ProductListScreen'))} />
         <Stack.Screen name="ProductForm" getComponent={lazy(() => require('../modules/products/screens/ProductFormScreen'))} options={{ animation: 'slide_from_bottom' }} />
+        <Stack.Screen name="Capacities" getComponent={lazy(() => require('../modules/products/screens/CapacitiesScreen'))} />
         <Stack.Screen name="OrderCreate" getComponent={lazy(() => require('../modules/orders/screens/OrderCreateScreen'))} options={{ animation: 'slide_from_bottom' }} />
         <Stack.Screen name="OrderDetail" getComponent={lazy(() => require('../modules/orders/screens/OrderDetailScreen'))} />
         <Stack.Screen name="StockEntry" getComponent={lazy(() => require('../modules/inventory/screens/StockEntryScreen'))} options={{ animation: 'slide_from_bottom' }} />

@@ -14,6 +14,8 @@ import { useFormat } from '../../../hooks/useFormat';
 import { useNav } from '../../../navigation/hooks';
 import { formatCapacity } from '../../../utils/format';
 import { getStock } from '../../inventory/services/inventoryService';
+import { capacityLabel, sortedCapacities } from '../services/capacityService';
+import { Button } from '../../../components/common/Button';
 
 export default function ProductListScreen() {
   const nav = useNav();
@@ -21,13 +23,17 @@ export default function ProductListScreen() {
   const { money } = useFormat();
   const [q, setQ] = useState('');
   const [f, setF] = useState<string>('all');
-  // One chip per distinct capacity in use, so custom sizes get a chip automatically and persist with the products.
-  const sizes = useMemo(() => Array.from(new Set(db.products.map((p) => p.capacityMl))).sort((a, b) => a - b), [db.products]);
-  const chips = useMemo(() => [{ value: 'all', label: 'All' }, { value: 'active', label: 'Active' }, { value: 'inactive', label: 'Inactive' }, ...sizes.map((ml) => ({ value: `ml:${ml}`, label: formatCapacity(ml) }))], [sizes]);
+  // One chip per saved bottle size of this business (standard + custom). Any product size without a record still gets a chip.
+  const sizes = useMemo(() => {
+    const saved = sortedCapacities(db).map((c) => ({ ml: c.ml, label: capacityLabel(c) }));
+    const extra = Array.from(new Set(db.products.map((p) => p.capacityMl))).filter((ml) => !saved.some((s) => s.ml === ml)).map((ml) => ({ ml, label: formatCapacity(ml) }));
+    return [...saved, ...extra].sort((a, b) => a.ml - b.ml);
+  }, [db]);
+  const chips = useMemo(() => [{ value: 'all', label: 'All' }, { value: 'active', label: 'Active' }, { value: 'inactive', label: 'Inactive' }, ...sizes.map((s) => ({ value: `ml:${s.ml}`, label: s.label }))], [sizes]);
   const sel = chips.some((x) => x.value === f) ? f : 'all';
   const list = useMemo(() => db.products.filter((p) => (sel === 'all' || (sel === 'active' ? p.active : sel === 'inactive' ? !p.active : `ml:${p.capacityMl}` === sel)) && p.name.toLowerCase().includes(q.trim().toLowerCase())).sort((a, b) => a.capacityMl - b.capacityMl), [db.products, q, sel]);
   return (
-    <Screen padded={false} header={<Header title="Products" subtitle={`${db.products.length} products`} />}>
+    <Screen padded={false} header={<Header title="Products" subtitle={`${db.products.length} products`} right={<Button title="Sizes" icon="sliders" size="sm" variant="soft" full={false} onPress={() => nav.navigate('Capacities')} />} />}>
       <View style={{ paddingHorizontal: 20, paddingBottom: 12, gap: 12 }}>
         <SearchBar value={q} onChangeText={setQ} placeholder="Search products" />
       </View>

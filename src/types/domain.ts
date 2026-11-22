@@ -30,6 +30,18 @@ export interface Product {
   image?: string;
 }
 
+/** A bottle size this business sells. One record per size; drives the capacity chips on Products. */
+export interface Capacity {
+  id: ID;
+  ml: number;
+  /** Optional display name, e.g. "Jumbo jar". Empty means show the formatted size. */
+  label: string;
+  /** Created from the standard size list rather than by the owner. Owners can still edit or delete it. */
+  isDefault: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export type StockField = 'filled' | 'empty' | 'withCustomers' | 'withStaff' | 'damaged' | 'lost';
 export const STOCK_FIELDS: StockField[] = ['filled', 'empty', 'withCustomers', 'withStaff', 'damaged', 'lost'];
 export type StockRecord = { productId: ID } & Record<StockField, number>;
@@ -190,8 +202,11 @@ export interface SettingsState {
 }
 
 export interface DbState {
+  /** Account that owns this workspace. Unset only for data created before workspaces were per-account. */
+  ownerId?: ID;
   customers: Customer[];
   products: Product[];
+  capacities: Capacity[];
   staff: Staff[];
   orders: Order[];
   stock: Record<ID, StockRecord>;

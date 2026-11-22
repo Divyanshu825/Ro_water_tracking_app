@@ -8,7 +8,7 @@ export type RootStackParamList = {
   Splash: undefined; Welcome: undefined; Login: undefined; Register: undefined; ForgotPassword: undefined;
   Main: NavigatorScreenParams<TabParamList> | undefined;
   CustomerForm: { id?: ID } | undefined; CustomerDetail: { id: ID };
-  ProductList: undefined; ProductForm: { id?: ID } | undefined;
+  ProductList: undefined; ProductForm: { id?: ID } | undefined; Capacities: undefined;
   OrderCreate: { customerId?: ID } | undefined; OrderDetail: { id: ID };
   StockEntry: { kind?: InventoryEntryKind; productId?: ID } | undefined; InventoryHistory: { productId?: ID } | undefined;
   Subscriptions: undefined; SubscriptionForm: { id?: ID } | undefined;

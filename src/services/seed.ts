@@ -5,12 +5,19 @@ import { addDays, dateAtHour, todayStr } from '../utils/date';
 import { customerBalance, bottleBalance } from '../modules/payments/services/ledger';
 import { getStock } from '../modules/inventory/services/inventoryService';
 import { TIME_SLOTS } from '../modules/orders/services/orderService';
+import { ensureDefaultCapacities } from '../modules/products/services/capacityService';
+import { ensureDefaultProducts } from '../modules/products/services/productService';
 
-export const emptyDb = (): DbState => ({
-  customers: [], products: [], staff: [], orders: [], stock: {}, inventoryTxns: [], financialEntries: [],
-  bottleLedger: [], subscriptions: [], expenses: [], notifications: [],
-  counters: { seq: 0, order: 0, receipt: 0 }, appliedKeys: {},
-});
+/** An empty workspace. Every workspace, however it is created, starts with the standard bottle sizes. */
+export const emptyDb = (now = new Date().toISOString()): DbState => {
+  const db: DbState = {
+    customers: [], products: [], capacities: [], staff: [], orders: [], stock: {}, inventoryTxns: [], financialEntries: [],
+    bottleLedger: [], subscriptions: [], expenses: [], notifications: [],
+    counters: { seq: 0, order: 0, receipt: 0 }, appliedKeys: {},
+  };
+  ensureDefaultCapacities(db, now);
+  return db;
+};
 
 function rng(seed: number) {
   let a = seed;
@@ -34,14 +41,11 @@ const PRODUCTS = [
   { name: 'Alkaline 1L (Custom)', capacityMl: 1000, sellingPrice: 35, purchaseCost: 22, deposit: 0, returnable: false, lowStockThreshold: 60, f: 200 },
 ];
 
-/** Standard catalogue every new business starts with (same sizes the demo data uses; owners can edit or add more). */
-export const DEFAULT_PRODUCTS = PRODUCTS.filter((p) => !p.name.includes('(Custom)')).map(({ f: _f, ...p }) => p);
-
-/** Empty workspace pre-loaded with the default product catalogue. Only called once, when an account is created. */
+/** Empty workspace pre-loaded with the default product catalogue. Only called once per account, when it is created. */
 export function freshWorkspaceDb(): DbState {
   const db = emptyDb();
   const ctx: Ctx = { now: new Date().toISOString(), settings: defaultSettings() };
-  DEFAULT_PRODUCTS.forEach((p) => applyOp(db, { t: 'product.save', v: { ...p, active: true } as never }, ctx));
+  ensureDefaultProducts(db, ctx);
   return db;
 }
 
@@ -87,6 +91,7 @@ export function buildSeed(settingsOverride?: SettingsState): DbState {
     db.stock[r.id] = { productId: r.id, filled: f, empty: Math.round(f * 0.45), withCustomers: 0, withStaff: 0, damaged: 0, lost: 0 };
     db.inventoryTxns.unshift({ id: `it_open_${r.id}`, productId: r.id, type: 'opening', qty: total, delta: { filled: f, empty: Math.round(f * 0.45) }, note: 'Opening stock', at: mk(start).now });
   }
+  ensureDefaultProducts(db, mk(start)); // demo already has every standard size; this only records that
   const pid = (name: string) => db.products.find((p) => p.name === name)!.id;
   const returnableIds = db.products.filter((p) => p.returnable).map((p) => p.id);
   const fiveL = pid('5L Can');
