@@ -1,25 +1,31 @@
 {
   "expo": {
-    "name": "bottle-track",
+    "name": "Bottle Track",
     "slug": "bottle-track",
+    "scheme": "bottletrack",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
+    "splash": { "backgroundColor": "#0B1F44" },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.bottletrack.app",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "Used to pick product images and your business logo."
+      }
     },
     "android": {
+      "package": "com.bottletrack.app",
+      "versionCode": 1,
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#0B1F44",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false
     },
-    "web": {
-      "favicon": "./assets/favicon.png"
-    }
+    "plugins": ["expo-sharing", "expo-image-picker", "./plugins/withAndroidReleaseSigning"]
   }
 }
