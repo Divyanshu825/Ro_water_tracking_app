@@ -55,7 +55,7 @@ export default function OrderListScreen() {
       <FilterChips value={status} onChange={setStatus} options={[{ value: 'all', label: 'All' }, { value: 'open', label: 'Open' }, { value: 'today', label: 'Today' }, ...ORDER_STATUSES.map((s) => ({ value: s, label: labelize(s) }))]} />
       <View style={{ height: 12 }} />
       {!ready ? <SkeletonList /> : (
-        <FlatList data={list} keyExtractor={(o) => o.id} contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 110, gap: 12 }} showsVerticalScrollIndicator={false} initialNumToRender={8} windowSize={9}
+        <FlatList data={list} keyExtractor={(o) => o.id} contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 190, gap: 12 }} showsVerticalScrollIndicator={false} initialNumToRender={8} windowSize={9}
           renderItem={({ item, index }) => <OrderCard order={item} index={index} onPress={() => nav.navigate('OrderDetail', { id: item.id })} />}
           ListEmptyComponent={<EmptyState title="No orders found" message={q || status !== 'all' ? 'Try changing the filters.' : 'Create your first order to get started.'} actionLabel="Create order" onAction={() => nav.navigate('OrderCreate')} />} />
       )}

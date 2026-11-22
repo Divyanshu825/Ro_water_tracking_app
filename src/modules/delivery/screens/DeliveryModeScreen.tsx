@@ -16,7 +16,7 @@ import { useDb } from '../../../hooks/useData';
 import { useFormat } from '../../../hooks/useFormat';
 import { useTheme } from '../../../theme';
 import { orderTotal } from '../../payments/services/ledger';
-import { todayStr } from '../../../utils/date';
+import { formatTimeSlot, todayStr } from '../../../utils/date';
 import { labelize } from '../../../utils/format';
 
 /** Field-staff view: today's deliveries for one staff member with the actions they need on the road. */
@@ -45,7 +45,7 @@ export default function DeliveryModeScreen() {
         const open = o.status === 'assigned' || o.status === 'confirmed' || o.status === 'out_for_delivery';
         return (
           <Card key={o.id} style={{ gap: 10 }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}><AppText v="label" color="textMuted">{o.number} · {o.timeSlot}</AppText><Badge status={o.status} label={labelize(o.status)} /></View>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}><AppText v="label" color="textMuted">{o.number} · {formatTimeSlot(o.timeSlot)}</AppText><Badge status={o.status} label={labelize(o.status)} /></View>
             <AppText v="h3">{cust?.name}</AppText>
             <View style={{ flexDirection: 'row', gap: 8 }}><Icon name="map-pin" size={15} color={c.textMuted} /><AppText v="caption" color="textMuted" style={{ flex: 1 }}>{addr?.line}, {addr?.city}</AppText></View>
             <AppText v="caption">{o.items.map((i) => `${i.qty}× ${i.name}`).join(', ')} · {money(orderTotal(o))}</AppText>

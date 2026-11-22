@@ -20,17 +20,21 @@ export default function ProductListScreen() {
   const db = useDb();
   const { money } = useFormat();
   const [q, setQ] = useState('');
-  const [f, setF] = useState<'all' | 'active' | 'inactive'>('all');
-  const list = useMemo(() => db.products.filter((p) => (f === 'all' || (f === 'active') === p.active) && p.name.toLowerCase().includes(q.trim().toLowerCase())).sort((a, b) => a.capacityMl - b.capacityMl), [db.products, q, f]);
+  const [f, setF] = useState<string>('all');
+  // One chip per distinct capacity in use, so custom sizes get a chip automatically and persist with the products.
+  const sizes = useMemo(() => Array.from(new Set(db.products.map((p) => p.capacityMl))).sort((a, b) => a - b), [db.products]);
+  const chips = useMemo(() => [{ value: 'all', label: 'All' }, { value: 'active', label: 'Active' }, { value: 'inactive', label: 'Inactive' }, ...sizes.map((ml) => ({ value: `ml:${ml}`, label: formatCapacity(ml) }))], [sizes]);
+  const sel = chips.some((x) => x.value === f) ? f : 'all';
+  const list = useMemo(() => db.products.filter((p) => (sel === 'all' || (sel === 'active' ? p.active : sel === 'inactive' ? !p.active : `ml:${p.capacityMl}` === sel)) && p.name.toLowerCase().includes(q.trim().toLowerCase())).sort((a, b) => a.capacityMl - b.capacityMl), [db.products, q, sel]);
   return (
     <Screen padded={false} header={<Header title="Products" subtitle={`${db.products.length} products`} />}>
       <View style={{ paddingHorizontal: 20, paddingBottom: 12, gap: 12 }}>
         <SearchBar value={q} onChangeText={setQ} placeholder="Search products" />
       </View>
-      <FilterChips value={f} onChange={setF} options={[{ value: 'all', label: 'All' }, { value: 'active', label: 'Active' }, { value: 'inactive', label: 'Inactive' }]} />
+      <FilterChips value={sel} onChange={setF} options={chips} />
       <View style={{ height: 12 }} />
-      <FlatList data={list} keyExtractor={(p) => p.id} contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 110, gap: 12 }} showsVerticalScrollIndicator={false}
-        ListEmptyComponent={<EmptyState title="No products" message="Add the bottle sizes you sell." actionLabel="Add product" onAction={() => nav.navigate('ProductForm')} />}
+      <FlatList data={list} keyExtractor={(p) => p.id} contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 120, gap: 12 }} showsVerticalScrollIndicator={false}
+        ListEmptyComponent={<EmptyState title="No products" message={q || sel !== 'all' ? 'No products match this filter.' : 'Add the bottle sizes you sell.'} actionLabel="Add product" onAction={() => nav.navigate('ProductForm')} />}
         renderItem={({ item: p, index }) => {
           const st = getStock(db, p.id);
           return (
@@ -50,7 +54,7 @@ export default function ProductListScreen() {
             </Animated.View>
           );
         }} />
-      <Fab label="Add" onPress={() => nav.navigate('ProductForm')} />
+      <Fab label="Add Product" onPress={() => nav.navigate('ProductForm')} />
     </Screen>
   );
 }

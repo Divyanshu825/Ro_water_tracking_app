@@ -34,6 +34,17 @@ const PRODUCTS = [
   { name: 'Alkaline 1L (Custom)', capacityMl: 1000, sellingPrice: 35, purchaseCost: 22, deposit: 0, returnable: false, lowStockThreshold: 60, f: 200 },
 ];
 
+/** Standard catalogue every new business starts with (same sizes the demo data uses; owners can edit or add more). */
+export const DEFAULT_PRODUCTS = PRODUCTS.filter((p) => !p.name.includes('(Custom)')).map(({ f: _f, ...p }) => p);
+
+/** Empty workspace pre-loaded with the default product catalogue. Only called once, when an account is created. */
+export function freshWorkspaceDb(): DbState {
+  const db = emptyDb();
+  const ctx: Ctx = { now: new Date().toISOString(), settings: defaultSettings() };
+  DEFAULT_PRODUCTS.forEach((p) => applyOp(db, { t: 'product.save', v: { ...p, active: true } as never }, ctx));
+  return db;
+}
+
 const CUSTOMERS: { name: string; phone: string; type: CustomerType; area: string; pin: string; notes: string }[] = [
   { name: 'Rohan Deshmukh', phone: '9822011101', type: 'Home', area: 'Baner Road', pin: '411045', notes: 'Call before arriving. Dog at the gate.' },
   { name: 'Priya Kulkarni', phone: '9822011102', type: 'Home', area: 'Kothrud', pin: '411038', notes: '' },

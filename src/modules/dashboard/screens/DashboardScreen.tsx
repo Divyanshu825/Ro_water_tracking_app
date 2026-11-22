@@ -4,7 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import { useTheme, shadow } from '../../../theme';
+import { useTheme } from '../../../theme';
 import { AppText } from '../../../components/common/Text';
 import { Card } from '../../../components/common/Card';
 import { Icon, IconName } from '../../../components/common/Icon';
@@ -27,13 +27,21 @@ import { RANGE_OPTIONS, RangeKey, dailySeries, dashboardStats, lowStock, monthly
 import { addDays, friendlyDate, monthLabel, todayStr, weekdayShort, formatDateTime } from '../../../utils/date';
 import { labelize } from '../../../utils/format';
 
-const QUICK: { icon: IconName; label: string; go: (n: ReturnType<typeof useNav>) => void }[] = [
-  { icon: 'user-plus', label: 'Add Customer', go: (n) => n.navigate('CustomerForm') },
-  { icon: 'plus-circle', label: 'Create Order', go: (n) => n.navigate('OrderCreate') },
-  { icon: 'credit-card', label: 'Add Payment', go: (n) => n.navigate('RecordPayment') },
-  { icon: 'package', label: 'Add Stock', go: (n) => n.navigate('StockEntry', { kind: 'new_stock' }) },
-  { icon: 'bar-chart-2', label: 'View Reports', go: (n) => n.navigate('Reports') },
+const QUICK: { icon: IconName; label: string; tone: 'secondary' | 'success' | 'warning' | 'accent' | 'primary'; go: (n: ReturnType<typeof useNav>) => void }[] = [
+  { icon: 'user-plus', label: 'Add Customer', tone: 'secondary', go: (n) => n.navigate('CustomerForm') },
+  { icon: 'plus-circle', label: 'Create Order', tone: 'success', go: (n) => n.navigate('OrderCreate') },
+  { icon: 'credit-card', label: 'Add Payment', tone: 'warning', go: (n) => n.navigate('RecordPayment') },
+  { icon: 'package', label: 'Add Stock', tone: 'accent', go: (n) => n.navigate('StockEntry', { kind: 'new_stock' }) },
+  { icon: 'bar-chart-2', label: 'View Reports', tone: 'primary', go: (n) => n.navigate('Reports') },
 ];
+
+const TONE_BG = {
+  secondary: (c: ReturnType<typeof useTheme>) => c.secondarySoft,
+  success: (c: ReturnType<typeof useTheme>) => c.successSoft,
+  warning: (c: ReturnType<typeof useTheme>) => c.warningSoft,
+  accent: (c: ReturnType<typeof useTheme>) => c.secondarySoft,
+  primary: (c: ReturnType<typeof useTheme>) => c.primarySoft,
+};
 
 export default function DashboardScreen() {
   const c = useTheme();
@@ -133,10 +141,10 @@ export default function DashboardScreen() {
                 <SectionTitle title="Quick actions" />
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginHorizontal: -20 }} contentContainerStyle={{ paddingHorizontal: 20, gap: 12 }}>
                   {QUICK.map((q) => (
-                    <Pressable key={q.label} accessibilityRole="button" accessibilityLabel={q.label} onPress={() => q.go(nav)} style={[{ width: 92, paddingVertical: 14, borderRadius: 20, backgroundColor: c.surface, alignItems: 'center', gap: 8 }, shadow(c, 1)]}>
-                      <View style={{ width: 44, height: 44, borderRadius: 14, backgroundColor: c.secondarySoft, alignItems: 'center', justifyContent: 'center' }}><Icon name={q.icon} size={20} color={c.secondary} /></View>
-                      <AppText v="caption" align="center" style={{ fontWeight: '600' }}>{q.label}</AppText>
-                    </Pressable>
+                    <Card key={q.label} flat pad={12} onPress={() => q.go(nav)} style={{ width: 96, alignItems: 'center', gap: 10 }}>
+                      <View style={{ width: 46, height: 46, borderRadius: 15, backgroundColor: TONE_BG[q.tone](c), alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: c[q.tone] + '33' }}><Icon name={q.icon} size={21} color={c[q.tone]} /></View>
+                      <AppText v="caption" align="center" numberOfLines={2} style={{ fontWeight: '700', minHeight: 34 }}>{q.label}</AppText>
+                    </Card>
                   ))}
                 </ScrollView>
               </View>
@@ -169,6 +177,7 @@ export default function DashboardScreen() {
 
               <View style={{ gap: 12 }}>
                 <SectionTitle title="Recent orders" />
+                {recent.length === 0 ? <Card><EmptyState title="No orders yet" message="Orders you create will appear here." /></Card> : null}
                 {recent.map((o, i) => <OrderCard key={o.id} order={o} index={i} onPress={() => nav.navigate('OrderDetail', { id: o.id })} />)}
               </View>
 
@@ -197,7 +206,7 @@ export default function DashboardScreen() {
           )}
         </View>
       </ScrollView>
-      <DatePickerSheet visible={pickOpen} onClose={() => setPickOpen(false)} value={custom} onPick={(d) => { setCustom(d); setKey('custom'); setPickOpen(false); }} />
+      <DatePickerSheet visible={pickOpen} onClose={() => setPickOpen(false)} value={custom} max={todayStr()} onPick={(d) => { if (d > todayStr()) return; setCustom(d); setKey('custom'); setPickOpen(false); }} />
     </View>
   );
 }

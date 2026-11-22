@@ -9,7 +9,7 @@ import { Order } from '../../types/domain';
 import { useCustomer } from '../../hooks/useData';
 import { useFormat } from '../../hooks/useFormat';
 import { orderTotal } from '../../modules/payments/services/ledger';
-import { friendlyDate } from '../../utils/date';
+import { formatTimeSlot, friendlyDate } from '../../utils/date';
 import { labelize } from '../../utils/format';
 import { useTheme } from '../../theme';
 
@@ -32,7 +32,7 @@ export const OrderCard = ({ order, onPress, index }: { order: Order; onPress: ()
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
           <Icon name="clock" size={13} color={c.textMuted} />
-          <AppText v="caption" color="textMuted">{friendlyDate(order.deliveryDate)} · {order.timeSlot} · {qty} items</AppText>
+          <AppText v="caption" color="textMuted">{friendlyDate(order.deliveryDate)} · {formatTimeSlot(order.timeSlot)} · {qty} items</AppText>
         </View>
         <AppText v="h3">{money(orderTotal(order))}</AppText>
       </View>

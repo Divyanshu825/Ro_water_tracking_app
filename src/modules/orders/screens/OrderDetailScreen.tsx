@@ -18,7 +18,7 @@ import { useNav, useParams } from '../../../navigation/hooks';
 import { orderPaid, orderSubtotal, orderTotal, paymentStatus } from '../../payments/services/ledger';
 import { invoiceHtml } from '../../payments/services/invoice';
 import { sharePdf } from '../../../services/export';
-import { formatDate, friendlyDate } from '../../../utils/date';
+import { formatDate, formatTimeSlot, friendlyDate } from '../../../utils/date';
 import { labelize } from '../../../utils/format';
 import { OrderStatus } from '../../../types/domain';
 import { ListItem } from '../../../components/common/Misc';
@@ -54,7 +54,7 @@ export default function OrderDetailScreen() {
   const navigate = () => { if (addr) Linking.openURL(Platform.select({ ios: `http://maps.apple.com/?q=${encodeURIComponent(`${addr.line}, ${addr.city}`)}`, default: `geo:0,0?q=${encodeURIComponent(`${addr.line}, ${addr.city}`)}` })!); };
 
   return (
-    <Screen scroll header={<Header title={o.number} subtitle={`${friendlyDate(o.deliveryDate)} · ${o.timeSlot}`} right={<Badge status={o.status} label={labelize(o.status)} />} />}>
+    <Screen scroll header={<Header title={o.number} subtitle={`${friendlyDate(o.deliveryDate)} · ${formatTimeSlot(o.timeSlot)}`} right={<Badge status={o.status} label={labelize(o.status)} />} />}>
       <Card><StatusTimeline order={o} /></Card>
 
       <Card style={{ gap: 12 }}>

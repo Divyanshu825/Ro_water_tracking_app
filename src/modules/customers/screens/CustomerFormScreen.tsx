@@ -22,7 +22,7 @@ const schema = z.object({
   email: z.string().trim().refine((v) => !v || /^\S+@\S+\.\S+$/.test(v), 'Enter a valid email'),
   type: z.string().min(1, 'Select a type'),
   notes: z.string(),
-  addresses: z.array(z.object({ id: z.string().optional(), label: z.string().trim().min(1, 'Label required'), line: z.string().trim().min(3, 'Enter the address'), city: z.string().trim().min(2, 'City required'), pincode: z.string().trim().regex(/^\d{4,8}$/, 'Invalid pincode') })).min(1, 'Add at least one address'),
+  addresses: z.array(z.object({ id: z.string().optional(), label: z.string().trim().min(1, 'Label required'), line: z.string().trim().min(3, 'Enter the address'), city: z.string().trim().min(2, 'City required'), pincode: z.string().trim().refine((v) => !v || /^\d{4,8}$/.test(v), 'Invalid pincode') })).min(1, 'Add at least one address'),
 });
 type F = z.infer<typeof schema>;
 
@@ -36,7 +36,7 @@ export default function CustomerFormScreen() {
     resolver: zodResolver(schema),
     defaultValues: existing
       ? { name: existing.name, phone: existing.phone, email: existing.email ?? '', type: existing.type, notes: existing.notes, addresses: existing.addresses }
-      : { name: '', phone: '', email: '', type: 'Home', notes: '', addresses: [{ label: 'Home', line: '', city: 'Pune', pincode: '' }] },
+      : { name: '', phone: '', email: '', type: 'Home', notes: '', addresses: [{ label: 'Home', line: '', city: '', pincode: '' }] },
   });
   const { fields, append, remove } = useFieldArray({ control, name: 'addresses' });
 
@@ -51,26 +51,26 @@ export default function CustomerFormScreen() {
     <Screen scroll header={<Header title={existing ? 'Edit customer' : 'New customer'} />} footer={<Button title={existing ? 'Save changes' : 'Add customer'} onPress={submit} />}>
       <Card style={{ gap: 14 }}>
         <AppText v="h3">Personal information</AppText>
-        <FormText control={control} name="name" label="Name" icon="user" placeholder="Customer or business name" autoCapitalize="words" />
-        <FormText control={control} name="phone" label="Mobile number" icon="phone" placeholder="98765 43210" keyboardType="phone-pad" />
+        <FormText control={control} name="name" label="Name" required icon="user" placeholder="Customer or business name" autoCapitalize="words" />
+        <FormText control={control} name="phone" label="Mobile number" required icon="phone" placeholder="98765 43210" keyboardType="phone-pad" />
         <FormText control={control} name="email" label="Email (optional)" icon="mail" placeholder="name@email.com" autoCapitalize="none" keyboardType="email-address" />
-        <FormSelect control={control} name="type" label="Customer type" options={CUSTOMER_TYPES.map((t) => ({ value: t, label: t }))} />
+        <FormSelect control={control} name="type" label="Customer type" required options={CUSTOMER_TYPES.map((t) => ({ value: t, label: t }))} />
       </Card>
       <Card style={{ gap: 14 }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <AppText v="h3">Delivery addresses</AppText>
-          <Button title="Add" icon="plus" size="sm" variant="soft" full={false} onPress={() => append({ label: `Address ${fields.length + 1}`, line: '', city: 'Pune', pincode: '' })} />
+          <Button title="Add" icon="plus" size="sm" variant="soft" full={false} onPress={() => append({ label: `Address ${fields.length + 1}`, line: '', city: '', pincode: '' })} />
         </View>
         {fields.map((f, i) => (
           <View key={f.id} style={{ gap: 12, paddingTop: i ? 14 : 0, borderTopWidth: i ? 1 : 0, borderTopColor: '#8883' }}>
             <View style={{ flexDirection: 'row', gap: 10, alignItems: 'flex-end' }}>
-              <View style={{ flex: 1 }}><FormText control={control} name={`addresses.${i}.label`} label="Label" placeholder="Home, Office…" /></View>
+              <View style={{ flex: 1 }}><FormText control={control} name={`addresses.${i}.label`} label="Label" required placeholder="Home, Office…" /></View>
               {fields.length > 1 ? <Button title="Remove" size="sm" variant="danger" full={false} onPress={() => remove(i)} style={{ marginBottom: 6 }} /> : null}
             </View>
-            <FormText control={control} name={`addresses.${i}.line`} label="Address" placeholder="Flat / street / area" multiline />
+            <FormText control={control} name={`addresses.${i}.line`} label="Address" required placeholder="Flat / street / area" multiline />
             <View style={{ flexDirection: 'row', gap: 10 }}>
-              <View style={{ flex: 1 }}><FormText control={control} name={`addresses.${i}.city`} label="City" /></View>
-              <View style={{ flex: 1 }}><FormText control={control} name={`addresses.${i}.pincode`} label="Pincode" keyboardType="number-pad" /></View>
+              <View style={{ flex: 1 }}><FormText control={control} name={`addresses.${i}.city`} label="City" required placeholder="e.g. Pune" /></View>
+              <View style={{ flex: 1 }}><FormText control={control} name={`addresses.${i}.pincode`} label="Pincode (optional)" placeholder="e.g. 411001" keyboardType="number-pad" /></View>
             </View>
           </View>
         ))}

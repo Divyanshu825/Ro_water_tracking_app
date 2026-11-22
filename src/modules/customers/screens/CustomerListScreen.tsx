@@ -56,13 +56,13 @@ export default function CustomerListScreen() {
       <View style={{ height: 12 }} />
       {!ready ? <SkeletonList /> : (
         <FlatList
-          data={list} keyExtractor={(x) => x.id} contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 110, gap: 12 }} showsVerticalScrollIndicator={false}
+          data={list} keyExtractor={(x) => x.id} contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 190, gap: 12 }} showsVerticalScrollIndicator={false}
           initialNumToRender={8} windowSize={9}
           renderItem={({ item, index }) => <CustomerRow index={index} customer={item} balance={balances.get(item.id) ?? 0} bottles={bottles.get(item.id) ?? 0} onPress={() => nav.navigate('CustomerDetail', { id: item.id })} />}
           ListEmptyComponent={<EmptyState title={q || type !== 'all' || status !== 'all' ? 'No matching customers' : 'No customers yet'} message={q ? 'Try a different name or number.' : 'Add your first customer to start taking orders.'} actionLabel={q ? undefined : 'Add customer'} onAction={() => nav.navigate('CustomerForm')} />}
         />
       )}
-      <Fab icon="user-plus" label="Add" onPress={() => nav.navigate('CustomerForm')} />
+      <Fab icon="user-plus" label="Add Customer" onPress={() => nav.navigate('CustomerForm')} />
       <BottomSheet visible={sheet} onClose={() => setSheet(false)} title="Filter & sort">
         <AppText v="overline" color="textMuted">Status</AppText>
         <FilterChips pad={0} value={status} onChange={setStatus} options={[{ value: 'all', label: 'All' }, { value: 'active', label: 'Active' }, { value: 'inactive', label: 'Inactive' }, { value: 'owing', label: 'Has dues' }]} />

@@ -13,15 +13,21 @@ export interface TextFieldProps extends Omit<TextInputProps, 'onChange'> {
   prefix?: string;
   secure?: boolean;
   hint?: string;
+  required?: boolean;
 }
 
-export const TextField = ({ label, error, icon, suffix, prefix, secure, hint, multiline, style, ...rest }: TextFieldProps) => {
+/** Field label with a consistent required marker. */
+export const FieldLabel = ({ label, required }: { label: string; required?: boolean }) => (
+  <AppText v="label" color="textMuted">{label}{required ? <AppText v="label" color="error"> *</AppText> : null}</AppText>
+);
+
+export const TextField = ({ label, error, icon, suffix, prefix, secure, hint, required, multiline, style, ...rest }: TextFieldProps) => {
   const c = useTheme();
   const [focus, setFocus] = useState(false);
   const [hide, setHide] = useState(!!secure);
   return (
     <View style={{ gap: 6 }}>
-      {label ? <AppText v="label" color="textMuted">{label}</AppText> : null}
+      {label ? <FieldLabel label={label} required={required} /> : null}
       <View style={{ flexDirection: 'row', alignItems: multiline ? 'flex-start' : 'center', gap: 10, backgroundColor: c.surface, borderRadius: 14, borderWidth: 1.5, borderColor: error ? c.error : focus ? c.secondary : c.border, paddingHorizontal: 14, minHeight: 52 }}>
         {icon ? <View style={{ paddingTop: multiline ? 14 : 0 }}><Icon name={icon} size={18} color={focus ? c.secondary : c.textMuted} /></View> : null}
         {prefix ? <AppText v="bodyBold" color="textMuted">{prefix}</AppText> : null}

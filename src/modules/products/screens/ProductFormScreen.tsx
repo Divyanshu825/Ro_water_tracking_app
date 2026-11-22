@@ -7,12 +7,12 @@ import { Header, Screen } from '../../../components/common/Screen';
 import { Card } from '../../../components/common/Card';
 import { Button } from '../../../components/common/Button';
 import { AppText } from '../../../components/common/Text';
-import { FormText } from '../../../components/forms/TextField';
+import { FormText, FieldLabel } from '../../../components/forms/TextField';
 import { ToggleRow } from '../../../components/forms/ToggleRow';
 import { useFeedback } from '../../../components/common/Feedback';
 import { ProductThumb } from '../components/ProductThumb';
 import { useExec } from '../../../store/hooks';
-import { useProduct } from '../../../hooks/useData';
+import { useDb, useProduct } from '../../../hooks/useData';
 import { useFormat } from '../../../hooks/useFormat';
 import { useNav, useParams } from '../../../navigation/hooks';
 import { numStr } from '../../../utils/zodHelpers';
@@ -36,6 +36,7 @@ export default function ProductFormScreen() {
   const nav = useNav();
   const params = useParams<'ProductForm'>();
   const p = useProduct(params?.id);
+  const db = useDb();
   const exec = useExec();
   const fb = useFeedback();
   const { money, cur } = useFormat();
@@ -47,6 +48,8 @@ export default function ProductFormScreen() {
     defaultValues: { name: p?.name ?? '', capacityMl: String(p?.capacityMl ?? 20000), sellingPrice: String(p?.sellingPrice ?? ''), purchaseCost: String(p?.purchaseCost ?? ''), deposit: String(p?.deposit ?? 0), lowStockThreshold: String(p?.lowStockThreshold ?? 20) },
   });
   const w = useWatch({ control });
+  // Standard sizes plus any custom sizes already saved, so they can be reused.
+  const sizeOptions = Array.from(new Set([...PRESETS, ...db.products.map((x) => x.capacityMl)])).sort((a, b) => a - b);
   const margin = toNum(w.sellingPrice) - toNum(w.purchaseCost);
 
   const submit = handleSubmit((v) => {
@@ -66,11 +69,11 @@ export default function ProductFormScreen() {
         </View>
       </Card>
       <Card style={{ gap: 14 }}>
-        <FormText control={control} name="name" label="Product name" placeholder="e.g. 20L Jar" autoCapitalize="words" />
+        <FormText control={control} name="name" label="Product name" required placeholder="e.g. 20L Jar" autoCapitalize="words" />
         <View style={{ gap: 8 }}>
-          <AppText v="label" color="textMuted">Bottle capacity</AppText>
+          <FieldLabel label="Bottle capacity" required />
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-            {PRESETS.map((ml) => {
+            {sizeOptions.map((ml) => {
               const on = toNum(w.capacityMl) === ml;
               return (
                 <Pressable key={ml} onPress={() => setValue('capacityMl', String(ml), { shouldValidate: true })} accessibilityRole="button" style={{ paddingHorizontal: 14, height: 36, borderRadius: 18, justifyContent: 'center', backgroundColor: on ? c.primary : c.surfaceAlt, borderWidth: 1, borderColor: on ? c.primary : c.border }}>
@@ -85,15 +88,15 @@ export default function ProductFormScreen() {
       <Card style={{ gap: 14 }}>
         <AppText v="h3">Pricing</AppText>
         <View style={{ flexDirection: 'row', gap: 10 }}>
-          <View style={{ flex: 1 }}><FormText control={control} name="sellingPrice" label="Selling price" prefix={cur.symbol} keyboardType="decimal-pad" /></View>
-          <View style={{ flex: 1 }}><FormText control={control} name="purchaseCost" label="Purchase cost" prefix={cur.symbol} keyboardType="decimal-pad" /></View>
+          <View style={{ flex: 1 }}><FormText control={control} name="sellingPrice" label="Selling price" required placeholder="e.g. 70" prefix={cur.symbol} keyboardType="decimal-pad" /></View>
+          <View style={{ flex: 1 }}><FormText control={control} name="purchaseCost" label="Purchase cost" required placeholder="e.g. 38" prefix={cur.symbol} keyboardType="decimal-pad" /></View>
         </View>
         {w.sellingPrice && w.purchaseCost ? <AppText v="caption" color={margin >= 0 ? 'success' : 'error'}>Margin per unit: {money(margin)}</AppText> : null}
         <ToggleRow title="Returnable bottle" subtitle="Reusable jars/cans tracked per customer, with a deposit" value={returnable} onChange={setReturnable} />
-        {returnable ? <FormText control={control} name="deposit" label="Deposit per bottle" prefix={cur.symbol} keyboardType="decimal-pad" /> : null}
+        {returnable ? <FormText control={control} name="deposit" label="Deposit per bottle" placeholder="e.g. 250" prefix={cur.symbol} keyboardType="decimal-pad" /> : null}
       </Card>
       <Card style={{ gap: 14 }}>
-        <FormText control={control} name="lowStockThreshold" label="Low-stock alert at (filled bottles)" keyboardType="number-pad" />
+        <FormText control={control} name="lowStockThreshold" label="Low-stock alert at (filled bottles)" required placeholder="e.g. 20" keyboardType="number-pad" />
         <ToggleRow title="Product active" subtitle="Inactive products can't be added to new orders" value={active} onChange={setActive} />
         {p ? <AppText v="caption" color="textMuted">Available stock is managed from Inventory.</AppText> : <AppText v="caption" color="textMuted">Add opening stock from Inventory after saving.</AppText>}
       </Card>

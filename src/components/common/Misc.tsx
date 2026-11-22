@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Pressable, TextInput, View } from 'react-native';
+import { BottomTabBarHeightContext } from '@react-navigation/bottom-tabs';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { ZoomIn } from 'react-native-reanimated';
 import { shadow, useTheme } from '../../theme';
 import { AppText } from './Text';
@@ -31,8 +33,12 @@ export const SearchBar = ({ value, onChangeText, placeholder = 'Search', right }
 
 export const Fab = ({ icon = 'plus', label, onPress }: { icon?: IconName; label?: string; onPress: () => void }) => {
   const c = useTheme();
+  const insets = useSafeAreaInsets();
+  // Inside the tab navigator the floating tab bar (56 + 2 border, see TabBar) overlays the screen bottom, so lift the button above it.
+  const inTabs = React.useContext(BottomTabBarHeightContext) !== undefined;
+  const bottom = inTabs ? Math.max(insets.bottom, 10) + 58 + 16 : 20;
   return (
-    <Animated.View entering={ZoomIn.delay(300).springify()} style={[{ position: 'absolute', right: 20, bottom: 20 }, shadow(c, 2)]}>
+    <Animated.View entering={ZoomIn.delay(300).springify()} style={[{ position: 'absolute', right: 20, bottom }, shadow(c, 2)]}>
       <Pressable accessibilityRole="button" accessibilityLabel={label ?? 'Add'} onPress={onPress}
         style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: c.primary, height: 56, minWidth: 56, paddingHorizontal: label ? 20 : 0, justifyContent: 'center', borderRadius: 28 }}>
         <Icon name={icon} size={22} color={c.onPrimary} />

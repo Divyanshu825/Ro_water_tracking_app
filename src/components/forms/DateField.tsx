@@ -4,6 +4,7 @@ import { Control, Controller, FieldValues, Path } from 'react-hook-form';
 import { useTheme } from '../../theme';
 import { AppText } from '../common/Text';
 import { Icon } from '../common/Icon';
+import { FieldLabel } from './TextField';
 import { BottomSheet } from '../common/BottomSheet';
 import { Button } from '../common/Button';
 import { addDays, friendlyDate, monthName, parseDate, toDateStr, todayStr } from '../../utils/date';
@@ -34,7 +35,7 @@ const Calendar = ({ value, onPick, min, max }: { value?: string; onPick: (d: str
           const on = ds === value;
           const dis = (min && ds < min) || (max && ds > max);
           return (
-            <Pressable key={i} disabled={!!dis} onPress={() => onPick(ds)} accessibilityRole="button" accessibilityLabel={ds}
+            <Pressable key={i} disabled={!!dis} onPress={() => { if (!dis) onPick(ds); }} accessibilityRole="button" accessibilityLabel={ds} accessibilityState={{ disabled: !!dis }}
               style={{ width: `${100 / 7}%`, height: 42, alignItems: 'center', justifyContent: 'center' }}>
               <View style={{ width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: on ? c.primary : 'transparent', borderWidth: ds === today && !on ? 1.5 : 0, borderColor: c.secondary, opacity: dis ? 0.3 : 1 }}>
                 <AppText v="label" color={on ? 'onPrimary' : 'text'}>{d}</AppText>
@@ -50,19 +51,19 @@ const Calendar = ({ value, onPick, min, max }: { value?: string; onPick: (d: str
 export const DatePickerSheet = ({ visible, onClose, value, onPick, min, max, title = 'Select date' }: { visible: boolean; onClose: () => void; value?: string; onPick: (d: string) => void; min?: string; max?: string; title?: string }) => (
   <BottomSheet visible={visible} onClose={onClose} title={title}>
     <View style={{ flexDirection: 'row', gap: 8 }}>
-      <Button title="Today" variant="soft" size="sm" full={false} onPress={() => onPick(todayStr())} />
-      <Button title="Tomorrow" variant="soft" size="sm" full={false} onPress={() => onPick(addDays(todayStr(), 1))} />
+      {!min || todayStr() >= min ? <Button title="Today" variant="soft" size="sm" full={false} onPress={() => onPick(todayStr())} /> : null}
+      {!max || addDays(todayStr(), 1) <= max ? <Button title="Tomorrow" variant="soft" size="sm" full={false} onPress={() => onPick(addDays(todayStr(), 1))} /> : null}
     </View>
     <Calendar value={value} min={min} max={max} onPick={onPick} />
   </BottomSheet>
 );
 
-export function DateField({ label, value, onChange, error, min, max, placeholder = 'Select date' }: { label?: string; value?: string; onChange: (d: string) => void; error?: string; min?: string; max?: string; placeholder?: string }) {
+export function DateField({ label, value, onChange, error, min, max, placeholder = 'Select date', required }: { required?: boolean; label?: string; value?: string; onChange: (d: string) => void; error?: string; min?: string; max?: string; placeholder?: string }) {
   const c = useTheme();
   const [open, setOpen] = useState(false);
   return (
     <View style={{ gap: 6 }}>
-      {label ? <AppText v="label" color="textMuted">{label}</AppText> : null}
+      {label ? <FieldLabel label={label} required={required} /> : null}
       <Pressable accessibilityRole="button" accessibilityLabel={label ?? placeholder} onPress={() => setOpen(true)}
         style={{ flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: c.surface, borderRadius: 14, borderWidth: 1.5, borderColor: error ? c.error : c.border, paddingHorizontal: 14, minHeight: 52 }}>
         <Icon name="calendar" size={18} color={c.textMuted} />

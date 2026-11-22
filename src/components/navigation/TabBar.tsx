@@ -3,6 +3,7 @@ import { Pressable, View } from 'react-native';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { Feather } from '@expo/vector-icons';
 import { shadow, useTheme } from '../../theme';
@@ -14,13 +15,15 @@ const Tab = ({ name, label, focused, onPress, onLongPress }: { name: string; lab
   const c = useTheme();
   const s = useSharedValue(focused ? 1 : 0);
   useEffect(() => { s.value = withSpring(focused ? 1 : 0, { damping: 14, stiffness: 180 }); }, [focused, s]);
-  const pill = useAnimatedStyle(() => ({ opacity: s.value, transform: [{ scale: 0.7 + s.value * 0.3 }] }));
-  const icon = useAnimatedStyle(() => ({ transform: [{ translateY: -s.value * 2 }, { scale: 1 + s.value * 0.08 }] }));
+  const pill = useAnimatedStyle(() => ({ opacity: s.value, transform: [{ scale: 0.85 + s.value * 0.15 }] }));
+  const icon = useAnimatedStyle(() => ({ transform: [{ translateY: -Math.sin(s.value * Math.PI) * 4 }, { scale: 1 + s.value * 0.1 }] }));
   return (
     <Pressable accessibilityRole="tab" accessibilityLabel={label} accessibilityState={{ selected: focused }} onPress={onPress} onLongPress={onLongPress} style={{ flex: 1, alignItems: 'center', justifyContent: 'center', height: 56 }}>
-      <Animated.View style={[{ position: 'absolute', width: 52, height: 34, top: 6, borderRadius: 17, backgroundColor: c.secondarySoft }, pill]} />
-      <Animated.View style={icon}><Feather name={ICONS[name]} size={21} color={focused ? c.secondary : c.textMuted} /></Animated.View>
-      <AppText v="caption" color={focused ? 'secondary' : 'textMuted'} style={{ fontSize: 10.5, fontWeight: focused ? '700' : '500', marginTop: 5 }}>{label}</AppText>
+      <Animated.View pointerEvents="none" style={[{ position: 'absolute', left: 3, right: 3, top: 3, bottom: 3, borderRadius: 20, shadowColor: c.secondary, shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 4 }, pill]}>
+        <LinearGradient colors={c.gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1, borderRadius: 20 }} />
+      </Animated.View>
+      <Animated.View style={icon}><Feather name={ICONS[name]} size={20} color={focused ? '#fff' : c.textMuted} /></Animated.View>
+      <AppText v="caption" color={focused ? '#fff' : 'textMuted'} numberOfLines={1} style={{ fontSize: 10.5, fontWeight: focused ? '700' : '500', marginTop: 4 }}>{label}</AppText>
     </Pressable>
   );
 };

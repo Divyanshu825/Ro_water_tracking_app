@@ -17,7 +17,7 @@ import { useNav, useParams } from '../../../navigation/hooks';
 import { FREQ_LABEL, scheduleDates } from '../services/subscriptionService';
 import { TIME_SLOTS } from '../../orders/services/orderService';
 import { Frequency } from '../../../types/domain';
-import { addDays, todayStr } from '../../../utils/date';
+import { addDays, formatTimeSlot, todayStr } from '../../../utils/date';
 import { toNum } from '../../../utils/format';
 
 export default function SubscriptionFormScreen() {
@@ -60,7 +60,7 @@ export default function SubscriptionFormScreen() {
           <View style={{ flex: 1 }}><DateField label="Start date" value={start} onChange={setStart} /></View>
           <View style={{ flex: 1 }}><DateField label="End date" value={end} min={start} onChange={setEnd} /></View>
         </View>
-        <SelectField label="Time slot" value={slot} options={TIME_SLOTS.map((t) => ({ value: t, label: t }))} onChange={setSlot} />
+        <SelectField label="Time slot" value={slot} options={TIME_SLOTS.map((t) => ({ value: t, label: formatTimeSlot(t) }))} onChange={setSlot} />
       </Card>
       <Card style={{ gap: 8 }}>
         <AppText v="h3">Products per delivery</AppText>

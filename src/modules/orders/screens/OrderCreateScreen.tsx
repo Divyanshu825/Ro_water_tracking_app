@@ -22,7 +22,7 @@ import { TIME_SLOTS, defaultDeliveryCharge, priceOrder } from '../services/order
 import { getStock } from '../../inventory/services/inventoryService';
 import { numStr } from '../../../utils/zodHelpers';
 import { formatCapacity, toNum } from '../../../utils/format';
-import { addDays, todayStr } from '../../../utils/date';
+import { addDays, formatTimeSlot, todayStr } from '../../../utils/date';
 import { useTheme } from '../../../theme';
 
 const schema = z.object({
@@ -91,12 +91,12 @@ export default function OrderCreateScreen() {
       </View>}>
       <Card style={{ gap: 14 }}>
         <AppText v="h3">Customer & delivery</AppText>
-        <FormSelect control={control} name="customerId" label="Customer" placeholder="Select customer" searchable
+        <FormSelect control={control} name="customerId" label="Customer" required placeholder="Select customer" searchable
           options={customers.map((x) => ({ value: x.id, label: x.name, sub: `${x.type} · ${x.phone}` }))} />
-        {customer ? <FormSelect control={control} name="addressId" label="Delivery address" options={customer.addresses.map((a) => ({ value: a.id, label: a.label, sub: `${a.line}, ${a.city}` }))} /> : null}
+        {customer ? <FormSelect control={control} name="addressId" label="Delivery address" required options={customer.addresses.map((a) => ({ value: a.id, label: a.label, sub: `${a.line}, ${a.city}` }))} /> : null}
         <View style={{ flexDirection: 'row', gap: 10 }}>
-          <View style={{ flex: 1 }}><FormDate control={control} name="deliveryDate" label="Delivery date" min={addDays(todayStr(), -1)} /></View>
-          <View style={{ flex: 1 }}><FormSelect control={control} name="timeSlot" label="Time slot" options={TIME_SLOTS.map((t) => ({ value: t, label: t }))} /></View>
+          <View style={{ flex: 1 }}><FormDate control={control} name="deliveryDate" label="Delivery date" required min={addDays(todayStr(), -1)} /></View>
+          <View style={{ flex: 1 }}><FormSelect control={control} name="timeSlot" label="Time slot" required options={TIME_SLOTS.map((t) => ({ value: t, label: formatTimeSlot(t) }))} /></View>
         </View>
         <FormText control={control} name="instructions" label="Delivery instructions" placeholder="Gate code, floor, call on arrival…" multiline />
       </Card>

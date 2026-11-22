@@ -58,3 +58,14 @@ export const monthLabel = (key: string) => {
   const [y, m] = key.split('-').map(Number);
   return `${MONTHS[m - 1]} ${String(y).slice(2)}`;
 };
+
+/** Display-only: '13:00 - 15:00' -> '01:00 PM - 03:00 PM'. Stored/API slot values stay 24-hour. */
+export const formatTimeSlot = (slot: string) => {
+  const parts = slot.split('-').map((p) => /^(\d{1,2}):(\d{2})$/.exec(p.trim()));
+  if (parts.length !== 2 || parts.some((m) => !m)) return slot;
+  return parts.map((m) => {
+    const h = Number(m![1]) % 24;
+    const h12 = h % 12 === 0 ? 12 : h % 12;
+    return `${String(h12).padStart(2, '0')}:${m![2]} ${h < 12 ? 'AM' : 'PM'}`;
+  }).join(' - ');
+};

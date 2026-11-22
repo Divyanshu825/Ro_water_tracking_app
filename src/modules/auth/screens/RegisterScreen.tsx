@@ -9,6 +9,7 @@ import { Button } from '../../../components/common/Button';
 import { AppText } from '../../../components/common/Text';
 import { useFeedback } from '../../../components/common/Feedback';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
+import { dbActions } from '../../../store/dbSlice';
 import { authActions } from '../../../store/authSlice';
 import { settingsActions } from '../../../store/settingsSlice';
 import { register } from '../../../services/authService';
@@ -39,6 +40,7 @@ export default function RegisterScreen() {
     setBusy(true);
     try {
       const acc = await register(accounts, v);
+      dispatch(dbActions.initWorkspace()); // new accounts start with no demo data, only the default product catalogue
       dispatch(authActions.addAccount(acc));
       const { password: _p, ...user } = acc;
       dispatch(authActions.setUser(user));

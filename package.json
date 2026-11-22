@@ -44,7 +44,8 @@
     "web": "expo start --web",
     "prebuild:android": "expo prebuild --platform android --no-install",
     "apk": "[ -d android ] || npm run prebuild:android; cd android && ./gradlew assembleRelease",
-    "bundle": "[ -d android ] || npm run prebuild:android; cd android && ./gradlew bundleRelease"
+    "bundle": "[ -d android ] || npm run prebuild:android; cd android && ./gradlew bundleRelease",
+    "lint": "expo lint"
   },
   "private": true
 }

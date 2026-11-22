@@ -1,3 +1,4 @@
+import { FieldLabel } from './TextField';
 import React, { useMemo, useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { Control, Controller, FieldValues, Path } from 'react-hook-form';
@@ -9,8 +10,8 @@ import { SearchBar } from '../common/Misc';
 
 export interface Option<T extends string = string> { value: T; label: string; sub?: string }
 
-export function SelectField<T extends string>({ label, value, options, onChange, placeholder = 'Select', error, searchable, disabled, title }: {
-  label?: string; value?: T; options: Option<T>[]; onChange: (v: T) => void; placeholder?: string; error?: string; searchable?: boolean; disabled?: boolean; title?: string;
+export function SelectField<T extends string>({ label, value, options, onChange, placeholder = 'Select', error, searchable, disabled, title, required }: {
+  label?: string; value?: T; options: Option<T>[]; onChange: (v: T) => void; placeholder?: string; error?: string; searchable?: boolean; disabled?: boolean; title?: string; required?: boolean;
 }) {
   const c = useTheme();
   const [open, setOpen] = useState(false);
@@ -19,7 +20,7 @@ export function SelectField<T extends string>({ label, value, options, onChange,
   const list = useMemo(() => (q ? options.filter((o) => `${o.label} ${o.sub ?? ''}`.toLowerCase().includes(q.toLowerCase())) : options), [q, options]);
   return (
     <View style={{ gap: 6 }}>
-      {label ? <AppText v="label" color="textMuted">{label}</AppText> : null}
+      {label ? <FieldLabel label={label} required={required} /> : null}
       <Pressable
         accessibilityRole="button" accessibilityLabel={label ?? placeholder} disabled={disabled} onPress={() => { setQ(''); setOpen(true); }}
         style={{ flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: c.surface, borderRadius: 14, borderWidth: 1.5, borderColor: error ? c.error : c.border, paddingHorizontal: 14, minHeight: 52, opacity: disabled ? 0.5 : 1 }}

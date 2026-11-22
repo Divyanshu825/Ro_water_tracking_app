@@ -9,7 +9,7 @@ export interface ChipOption<T extends string> { value: T; label: string; icon?: 
 export function FilterChips<T extends string>({ options, value, onChange, pad = 20 }: { options: ChipOption<T>[]; value: T; onChange: (v: T) => void; pad?: number }) {
   const c = useTheme();
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: pad, gap: 8 }} keyboardShouldPersistTaps="handled">
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0, flexShrink: 0 }} contentContainerStyle={{ paddingHorizontal: pad, gap: 8, alignItems: 'center' }} keyboardShouldPersistTaps="handled">
       {options.map((o) => {
         const on = o.value === value;
         return (

@@ -4,7 +4,7 @@ import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-na
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { radius, shadow, useTheme } from '../../theme';
-import { AppText } from './Text';
+import { AppText, Variant } from './Text';
 import { Icon, IconName } from './Icon';
 
 export interface ButtonProps {
@@ -17,9 +17,11 @@ export interface ButtonProps {
   disabled?: boolean;
   full?: boolean;
   style?: StyleProp<ViewStyle>;
+  /** Override the label's text variant (defaults to h3 for md, label for sm). */
+  textVariant?: Variant;
 }
 
-export const Button = ({ title, onPress, variant = 'primary', size = 'md', icon, loading, disabled, full = true, style }: ButtonProps) => {
+export const Button = ({ title, onPress, variant = 'primary', size = 'md', icon, loading, disabled, full = true, style, textVariant }: ButtonProps) => {
   const c = useTheme();
   const s = useSharedValue(1);
   const anim = useAnimatedStyle(() => ({ transform: [{ scale: s.value }] }));
@@ -37,7 +39,7 @@ export const Button = ({ title, onPress, variant = 'primary', size = 'md', icon,
   ) : (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
       {icon ? <Icon name={icon} size={size === 'md' ? 18 : 16} color={fg} /> : null}
-      <AppText v={size === 'md' ? 'h3' : 'label'} color={fg}>{title}</AppText>
+      <AppText v={textVariant ?? (size === 'md' ? 'h3' : 'label')} color={fg} numberOfLines={1}>{title}</AppText>
     </View>
   );
   return (

@@ -1,7 +1,7 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { Ctx, DbState } from '../types/domain';
 import { Op, applyOp } from '../services/engine';
-import { buildSeed, emptyDb } from '../services/seed';
+import { buildSeed, emptyDb, freshWorkspaceDb } from '../services/seed';
 
 const slice = createSlice({
   name: 'db',
@@ -12,6 +12,7 @@ const slice = createSlice({
       applyOp(state, action.payload.op, action.payload.ctx);
     },
     resetDemo: () => buildSeed(),
+    initWorkspace: () => freshWorkspaceDb(),
     clearAll: () => {
       const db = emptyDb();
       return db;

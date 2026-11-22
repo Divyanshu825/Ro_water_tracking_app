@@ -58,8 +58,8 @@ export default function PaymentsScreen() {
         </View>
       </LinearGradient>
       <View style={{ flexDirection: 'row', gap: 10 }}>
-        <View style={{ flex: 1 }}><Button title="Record payment" icon="plus" onPress={() => nav.navigate('RecordPayment')} /></View>
-        <View style={{ flex: 1 }}><Button title="Refund deposit" icon="rotate-ccw" variant="soft" onPress={() => nav.navigate('DepositRefund')} /></View>
+        <View style={{ flex: 1 }}><Button title="Record payment" icon="plus" textVariant="label" onPress={() => nav.navigate('RecordPayment')} /></View>
+        <View style={{ flex: 1 }}><Button title="Refund deposit" icon="rotate-ccw" variant="soft" textVariant="label" onPress={() => nav.navigate('DepositRefund')} /></View>
       </View>
       <Card style={{ gap: 10 }}>
         <AppText v="h3">Collections by method (30d)</AppText>
